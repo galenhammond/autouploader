@@ -1,0 +1,3 @@
+TREE_EOL_MARKER: str = "_"
+KEY_VALUE_SEPARATOR: str = ":"
+ITERATOR_DEFAULT: int = 1
