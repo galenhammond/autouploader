@@ -11,5 +11,9 @@ class ProjectParser(ABC):
         pass
 
     @abstractmethod
-    def serialize(self):
+    def serialize(self, object: object):
+        pass
+
+    @abstractmethod
+    def deserialize(self, object: bytes):
         pass

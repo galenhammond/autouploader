@@ -28,9 +28,11 @@ class FLPProjectParser(ProjectParser):
         return flp
 
     @classmethod
-    def serialize(cls, flp: pf.project.Project) -> str:
-        return jsonpickle.encode(flp)
+    def serialize(cls, object: object):
+        return jsonpickle.encode(
+            object,
+        )
 
     @classmethod
-    def deserialize(cls, data: str) -> Optional[pf.project.Project]:
-        return jsonpickle.decode(data, classes=(pf.project.Project))
+    def deserialize(cls, object: object):
+        return jsonpickle.decode(object, keys=True)

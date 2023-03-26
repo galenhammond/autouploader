@@ -6,10 +6,11 @@ name = "pypi"
 [packages]
 watchdog = "*"
 pyflp = "*"
-setuptools = "*"
 jsonpickle = "*"
 
 [dev-packages]
+black = "*"
+mypy = "*"
 
 [requires]
 python_version = "3.11"
