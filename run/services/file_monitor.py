@@ -9,8 +9,9 @@ from handlers.project_file import ProjectFileEventHandler
 
 log = getLogger("__main__." + __name__)
 
+
 def run():
-    path = config.RENDERED_MIXES_FOLDER_PATH if config else "."
+    path = config.RENDERED_MIXES_DIRECTORY_PATH if config else "."
     event_handler = ProjectFileEventHandler()
     project_file_dir_observer = Observer()
     project_file_dir_observer.schedule(event_handler, path, recursive=True)

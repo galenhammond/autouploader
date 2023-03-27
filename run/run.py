@@ -16,26 +16,30 @@ log = getLogger(__name__)
 
 def run(args: Namespace) -> None:
     if not args.service_name or args.service_name not in RUN_MODES.keys():
-        log.error("Invalid service name specified. Exiting...")
+        log.error(
+            "Invalid service name specified. Use --help for more information. Exiting."
+        )
         sys.exit(-1)
     run_service(args.service_name)
 
 
 def run_service(service_name: str):
     try:
-        monitor_p: Process = Process(target=RUN_MODES[service_name].run)
-        monitor_p.start()
-        log.info(f"Started {service_name} process.")
+        service_p: Process = Process(target=RUN_MODES[service_name].run)
+        service_p.start()
+        log.info(f"Started {service_name} process with PID {service_p.pid}.")
     except OSError:
-        log.error("Failed to start file monitor process.")
+        log.error(f"Failed to start {service_name} process.")
         sys.exit(-1)
 
     try:
-        monitor_p.join()
+        service_p.join()
     except KeyboardInterrupt:
-        log.info("Keyboard interrupt detected. Shutting down.")
-        monitor_p.terminate()
-        monitor_p.join()
+        log.info(
+            f"Keyboard interrupt detected. Terminating {service_name} with PID {service_p.pid}."
+        )
+        service_p.terminate()
+        service_p.join()
         sys.exit(0)
 
 
