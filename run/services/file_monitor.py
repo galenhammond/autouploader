@@ -7,9 +7,9 @@ import config  # This is the config file that I have in the same folder as main.
 from watchdog.observers import Observer
 from handlers.project_file import ProjectFileEventHandler
 
+log = getLogger("__main__." + __name__)
 
-def main():
-    log = getLogger("__main__." + __name__)
+def run():
     path = config.RENDERED_MIXES_FOLDER_PATH if config else "."
     event_handler = ProjectFileEventHandler()
     project_file_dir_observer = Observer()
@@ -24,4 +24,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    run()

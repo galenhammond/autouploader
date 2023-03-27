@@ -6,45 +6,35 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 import os
+import config
+from argparse import _SubParsersAction, Namespace, ArgumentParser
 import sys
-from file_monitor import main as file_monitor_main
+import run.run as run
 from multiprocessing import Process
+
+RUN_MODES = {
+    "run": run,
+}
 
 
 def main() -> None:
     log = logging.getLogger()
+    parser: ArgumentParser = ArgumentParser(description="Run a service.")
+    parser.add_argument("--version", "-v", action="version", version="%(prog)s 1.0.0")
+    subparsers = parser.add_subparsers(dest="run_mode")
+    for mode in RUN_MODES.keys():
+        subparser = subparsers.add_parser(mode)
+        RUN_MODES[mode].build_parser(subparser)
 
-    # if not os.path.exists("./user_files/scheduled"):
-    #     try:
-    #         os.mkdir("./user_files/scheduled")
-    #     except FileExistsError:
-    #         log.error(
-    #             "Failed to create user_files/scheduled directory. Directory already exists."
-    #         )
+    args: Namespace = parser.parse_args()
+    print(args)
+    run_mode: str = args.run_mode
 
     try:
-        monitor_p: Process = Process(target=file_monitor_main)
-        monitor_p.start()
-        log.info("File monitor process started.")
-    except OSError:
-        log.error("Failed to start file monitor process.")
+        RUN_MODES[run_mode].run(args)
+    except ModuleNotFoundError:
+        log.error("Non-existent run mode #{run_mode} specified. Exiting...")
         sys.exit(-1)
-
-    try:
-        monitor_p.join()
-    except KeyboardInterrupt:
-        log.info("Keyboard interrupt detected. Shutting down.")
-        monitor_p.terminate()
-        monitor_p.join()
-        sys.exit(0)
-
-
-def get_upload_file_paths(path: str) -> list[str]:
-    if not path:
-        return []
-    return [
-        os.path.join(path, file) for file in os.listdir(path) if file.endswith(".mp3")
-    ]
 
 
 if __name__ == "__main__":
