@@ -6,11 +6,10 @@ logging.basicConfig(
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 import os
-import config
+from config import Config
 from argparse import Namespace, ArgumentParser
 import sys
 import run.run as run
-from multiprocessing import Process
 
 log = logging.getLogger()
 RUN_MODES = {
@@ -50,23 +49,24 @@ def build_parsers() -> ArgumentParser:
     return parser
 
 
-def build_directories():
-    if not os.path.exists(config.USER_FILES_DIRECTORY_PATH):
+def build_directories() -> None:
+    if not os.path.exists(Config.get_env("USER_FILES_DIR")):
         try:
-            assert dir_builder(config.USER_FILES_DIRECTORY_PATH)
-        except (FileExistsError, FileNotFoundError) as e:
+            assert dir_builder(Config.get_env("USER_FILES_DIR"))
+        except (FileExistsError, FileNotFoundError, AssertionError) as e:
             log.error(f"Failed to create user file directory. Error: {e} Exiting.")
             sys.exit(-1)
 
-    if not os.path.exists(config.RENDERED_MIXES_DIRECTORY_PATH):
+    if not os.path.exists(Config.get_env("MIXDOWN_DIR")):
         log.error(
             "Failed to create user_files/scheduled directory. Directory already exists."
         )
         sys.exit(-1)
+    return None
 
 
 def dir_builder(path: str) -> bool:
-    if os.path.exists(path):
+    if not path or os.path.exists(path):
         return False
 
     path_arr = path.split("/")

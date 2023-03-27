@@ -1,5 +1,6 @@
 # Directories
 .vscode/
+*/**/.vscode/
 .mypy_cache/
 */**/__pycache__/
 
@@ -9,3 +10,7 @@ config.py
 /.DS_Store
 **/settings.json
 */**/*.pyc
+
+# Testing
+tests/utils/
+*/**/tests/utils/

@@ -1,4 +1,4 @@
-from argparse import _SubParsersAction, ArgumentParser, Namespace
+from argparse import ArgumentParser, Namespace
 from cgi import parse_multipart
 import sys
 from logging import getLogger
@@ -23,7 +23,7 @@ def run(args: Namespace) -> None:
     run_service(args.service_name)
 
 
-def run_service(service_name: str):
+def run_service(service_name: str) -> None:
     try:
         service_p: Process = Process(target=RUN_MODES[service_name].run)
         service_p.start()

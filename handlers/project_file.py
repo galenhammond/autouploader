@@ -20,6 +20,13 @@ class ProjectFileEventHandler(FileSystemEventHandler):
         what = "directory" if event.is_directory else "file"
         self.log.info("Created %s: %s", what, event.src_path)
 
+        if FLPProjectParser.is_flp_project_file(event.src_path):
+            flp_project: Optional[Project] = FLPProjectParser.parse(event.src_path)
+            tags: dict[str, Optional[str]] = (
+                FLPProjectParser.get_tags(flp_project) if flp_project else {}
+            )
+            FLPProjectParser.get_upload_metadata_from_tags(tags)
+
     def on_deleted(self, event: FileSystemEvent):
         super().on_deleted(event)
 
