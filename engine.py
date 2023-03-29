@@ -50,11 +50,14 @@ def build_parsers() -> ArgumentParser:
 
 
 def build_directories() -> None:
-    if not os.path.exists(Config.get_env("USER_FILES_DIR")):
+    user_files_dir: str = Config.get_env("USER_FILES_DIR")
+    if not os.path.exists(user_files_dir):
         try:
-            assert dir_builder(Config.get_env("USER_FILES_DIR"))
+            assert dir_builder(user_files_dir)
         except (FileExistsError, FileNotFoundError, AssertionError) as e:
-            log.error(f"Failed to create user file directory. Error: {e} Exiting.")
+            log.error(
+                f"Failed to create user file directory in {user_files_dir}. Error: {e} Exiting."
+            )
             sys.exit(-1)
 
     if not os.path.exists(Config.get_env("MIXDOWN_DIR")):

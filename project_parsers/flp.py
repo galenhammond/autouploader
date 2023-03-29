@@ -8,7 +8,7 @@ from pyflp.project import Project
 from pyflp import parse
 from .base import ProjectParser
 from typing import Optional
-from ._utils import download
+from auth.upload_policy import UploadPolicy
 import jsonpickle
 from config import Config
 
@@ -16,8 +16,8 @@ log = getLogger(__name__)
 
 
 class FLPProjectParser(ProjectParser):
-    @classmethod
-    def parse(cls, project_path: str) -> Optional[Project]:
+    @staticmethod
+    def parse(project_path: str) -> Optional[Project]:
         if not os.path.exists(project_path):
             log.error(f"File {project_path} does not exist.")
             return None
@@ -30,48 +30,67 @@ class FLPProjectParser(ProjectParser):
         return flp
 
     @staticmethod
-    def get_tags(project: Project) -> dict[str, Optional[str]]:
-        project_tags: dict[str, Optional[str]] = {
-            "title": project.title,
-            "comments": project.comments,
-            "genre": project.genre,
-            "artists": project.artists,
-            "url": project.url,
-        }
-        return project_tags
-
-    @staticmethod
-    def is_flp_project_file(path: str) -> bool:
+    def is_project_file(path: str) -> bool:
         return path.endswith(".flp")
 
     @staticmethod
-    def get_upload_metadata_from_tags(tags: dict[str, Optional[str]]) -> dict[str, str]:
-        # TODO
-        description_meta: dict[str, Optional[str]] = _parse_description(tags)
-        image_url = download(
-            description_meta["image_url"],
-            Config.get_env("USER_ARTWORKS_DIR"),
-        )
-
-        return {
-            "title": tags["title"] or "",
-            "description": tags["comments"] or "",
-            "genre": tags["genre"] or "",
-            "artists": tags["artists"] or "",
-            "url": tags["url"] or "",
-        }
-
-    @classmethod
-    def serialize(cls, object: object):
+    def serialize(object: object):
         return jsonpickle.encode(
             object,
         )
 
-    @classmethod
-    def deserialize(cls, object: object):
+    @staticmethod
+    def deserialize(object: object):
         return jsonpickle.decode(object, keys=True)
 
+    @classmethod
+    def prepare_for_export(cls, project_path: str) -> Optional[dict[str, str]]:
+        if not cls.is_project_file(project_path):
+            return None
 
-def _parse_description(tags: dict[str, Optional[str]]) -> dict[str, Optional[str]]:
-    # TODO
+        flp_project: Optional[Project] = FLPProjectParser.parse(project_path)
+        project_info: dict[str, Optional[str]] = (
+            __get_info(flp_project) if flp_project else {}
+        )
+
+        upload_metadata: dict[str, str] = __get_upload_metadata_from_info(project_info)
+        upload_metadata["project_path"] = project_path
+        return upload_metadata
+
+
+def __get_info(project: Project) -> dict[str, Optional[str]]:
+    project_info: dict[str, Optional[str]] = {
+        "title": project.title,
+        "description": project.comments,
+        "genre": project.genre,
+        "artists": project.artists,
+        "url": project.url,
+    }
+
+    return project_info
+
+
+def __get_upload_metadata_from_info(
+    project_info: dict[str, Optional[str]]
+) -> dict[str, str]:
+    description_and_tags: dict[str, Optional[str]] = __parse_description(
+        project_info["description"]
+    )
+    # image_url = download(
+    #     description_and_tags["image_url"],
+    #     Config.get_env("USER_ARTWORKS_DIR"),
+    # )
+
+    return {
+        "upload_title": project_info["title"] or "",
+        "upload_tags": description_and_tags["tags"] or "",
+        "upload_description": description_and_tags["description"] or "",
+        "upload_genre": project_info["genre"] or "",
+        "upload_artists": project_info["artists"] or "",
+        "upload_cover_art_url": project_info["url"] or "",
+    }
+
+
+def __parse_description(description: Optional[str]) -> dict[str, Optional[str]]:
+    # print(description)
     return {}

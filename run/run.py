@@ -47,6 +47,7 @@ def build_parser(parser: ArgumentParser) -> None:
     parser.add_argument(
         "--service",
         "-s",
+        choices=RUN_MODES.keys(),
         dest="service_name",
         type=str,
     )

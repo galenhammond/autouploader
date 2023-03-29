@@ -6,9 +6,9 @@ log = getLogger(__name__)
 
 
 def run():
-    if not os.path.exists(Config.get_env("SCHEDULED_UPLOADS_DIR")):
+    if not os.path.exists(Config.get_env("UPLOAD_QUEUE_DIR")):
         try:
-            os.mkdir(Config.get_env("SCHEDULED_UPLOADS_DIR"))
+            os.mkdir(Config.get_env("UPLOAD_QUEUE_DIR"))
         except FileExistsError:
             log.error(
                 "Failed to create user_files/scheduled directory. Directory already exists."
