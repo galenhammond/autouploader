@@ -1,11 +1,7 @@
 import unittest
 import sys
-from handlers.flp_handler import FLPEventHandler
 
 sys.path.append("..")
-
-from run import run
-from argparse import Namespace
 
 
 class TestFLPHandler(unittest.TestCase):

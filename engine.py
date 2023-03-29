@@ -72,25 +72,21 @@ def dir_builder(path: str) -> bool:
     if not path or os.path.exists(path):
         return False
 
+    path = os.path.expanduser(path)
     path_arr = path.split("/")
     curr_path = ""
     while len(path_arr):
         curr_dir = path_arr.pop(0)
-        new_path = ""
-        if curr_dir == "~":
-            new_path = f"{curr_path}{curr_dir}"
-        else:
-            new_path = f"{curr_path}/{curr_dir}"
-        if os.path.exists(new_path):
-            curr_path = new_path
-            continue
-        else:
+        new_path = f"{curr_path}/{curr_dir}"
+        if not os.path.exists(new_path):
             try:
                 os.mkdir(new_path)
             except (FileExistsError, FileNotFoundError) as e:
                 log.error(f"Failed to build directory {new_path}. Error: {e} Exiting.")
                 sys.exit(-1)
-            curr_path = new_path
+        curr_path = new_path
+        os.chdir(curr_path)
+    os.chdir(Config.get_env("ROOT_FOLDER_PATH"))
     return True
 
 
